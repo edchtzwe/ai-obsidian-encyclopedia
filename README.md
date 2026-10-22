@@ -83,4 +83,4 @@ Working vault convention, in use. Setup automation (`SKILL.md`) and a structural
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT — added when the repo is created on GitHub.
