@@ -22,7 +22,13 @@ The folder holding this file is the vault root.
    grep '^## \[' wiki/log.md | tail -5
    ```
 
-   The newest entry links the session's progress file. Read that file, not the folder.
+   Entries that left a progress file, newest last:
+
+   ```bash
+   awk '/^## \[/{h=$0; next} /^- Progress: /{print h; print}' wiki/log.md | tail -6
+   ```
+
+   Read the last pair to continue that work. Audit-only entries carry no progress, and neither does a cross-cutting note — the entry itself is the record then.
 5. `wiki/tasks.md` — the shared queue.
 
 Follow the indexes; never crawl directories. If the session matches no project, ask before creating one. If the vault path in your memory does not resolve, ask for it — do not search the disk.
@@ -220,9 +226,11 @@ One line per operation **on the vault** — what was written, where. Not what th
 
 Verbs: `ingest`, `create`, `update`, `move`, `delete`, `query`, `lint`, `setup`, `decision`.
 
-The description **names the project folder** it touched (`create | wiki/<project>/page`). That is what makes it possible to answer "where was I?" from the last few entries alone.
+The description **names the project folder** it touched (`create | wiki/<project>/page`), or the page itself when it belongs to no project (`create | wiki/<page>`). That is what makes it possible to answer "where was I?" from the last few entries alone.
 
-The last entry of a session carries a `Progress:` bullet pointing at that session's file. That is what makes resume two reads — newest log entry, then the progress file it links. A session that writes anything and leaves no such link has broken the next resume.
+An entry that records a session's writes **in a project** carries a `Progress:` bullet naming that session's file. Audit-only entries — `setup`, a push, a standalone `decision` — carry none, and neither does a write to a cross-cutting page that belongs to no project; there the entry itself is the record. Resume follows the newest entry that has a bullet, not the newest entry.
+
+So "what did I last work on" is two reads: the newest pair from the awk recipe above, then that progress file.
 
 Three reasons the log carries no content:
 
