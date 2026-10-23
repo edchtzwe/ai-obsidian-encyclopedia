@@ -9,7 +9,7 @@ Give your agent this URL. It reads `SKILL.md`, asks where your vault is, scaffol
 ## What you get
 
 ```
-raw/                          sources. Immutable, never edited by an agent.
+raw/                          sources. Write-once: anyone may add, none edit.
 raw/assets/                   images and attachments
 wiki/index.md                 root catalog: one line per project
 wiki/<project>/index.md       that project's pages
@@ -24,7 +24,7 @@ Three layers — `raw/`, `wiki/`, `AGENTS.md` — and no more. Deeper structure 
 
 The conventions are the point, so they are worth stating plainly:
 
-- **`raw/` is immutable.** If a source is wrong, say so in `wiki/`.
+- **`raw/` is write-once.** You or an agent may add a source; nobody edits, moves or deletes one afterwards. If a source is wrong, say so in `wiki/`. Cite the document itself, never a text extraction of it — an extraction is derived, lossy, and re-derivable, so it is not the source.
 - **Index before search.** Two levels: projects at the root, pages per project. Reading the first file costs nothing at any vault size.
 - **Extend, don't duplicate.** Near-duplicate pages are the most common failure mode of agent-maintained wikis.
 - **Contradictions are kept, not overwritten.** Both claims stay, each attributed.

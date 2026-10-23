@@ -155,4 +155,4 @@ Five lines:
 
 ## After setup
 
-Setup is over. From here the vault's own `AGENTS.md` is the contract: three layers, `raw/` immutable, indexes before search, one log line per write, `progress/` per session. Read it when the user asks you to do something with the vault — not before.
+Setup is over. From here the vault's own `AGENTS.md` is the contract: three layers, `raw/` write-once, indexes before search, one log line per write, `progress/` per session. Read it when the user asks you to do something with the vault — not before.
