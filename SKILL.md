@@ -87,7 +87,7 @@ That is the whole installation. What arrives:
 AGENTS.md                  the schema
 raw/assets/                empty, ready for sources
 wiki/index.md              root catalog, no projects yet
-wiki/log.md                audit trail with one setup entry
+wiki/log.md                audit trail, empty until step 6
 wiki/tasks.md              the shared queue
 wiki/How this vault works.md
 wiki/LLM Wiki pattern.md
@@ -95,15 +95,19 @@ wiki/LLM Wiki pattern.md
 
 No `README.md`, no `SKILL.md`, no `.git` — those belong to the seed repo, not to their vault.
 
-## 6. Date the first log entry
+## 6. Write the first log entry
 
-`wiki/log.md` ships with one entry dated `YYYY-MM-DD`. Replace that placeholder with today's date, and change nothing else:
+`wiki/log.md` ships empty. Append the setup entry, dated today:
 
 ```bash
-# replace the placeholder in the setup entry only
+printf '%s\n' '' "## [$(date +%F)] setup | vault initialised from ai-obsidian-encyclopedia" \
+  '- Structure created: `raw/`, `wiki/`, `AGENTS.md`. Nothing ingested yet, no projects yet' \
+  '' '---' '' >> "<vault>/wiki/log.md"
 ```
 
-One line, one edit. Nothing else in the copied files is modified.
+That is the only write setup makes inside an existing file, and the only content it authors. Everything else was copied byte-for-byte.
+
+Do not invent entries, do not backfill, do not describe what you are about to do. One line about what happened.
 
 ## 7. Install the `load-vault` skill
 
