@@ -43,7 +43,7 @@ Compiled knowledge, not chat history. A source is read once and written up as li
 
 | Layer | Owner | Rule |
 | :--- | :--- | :--- |
-| `raw/` | Human | Immutable. Read, never edit, move or delete. |
+| `raw/` | Both | Write-once. Anyone may add a source; no one edits, moves or deletes one. |
 | `wiki/` | Agents | Written by agents, read by humans. |
 | `AGENTS.md` | Both | The rules that keep the other two honest. |
 
@@ -71,20 +71,21 @@ A fresh vault has no project folders, and that is correct — `wiki/<project>/` 
 ## Hard rules
 
 1. **`raw/` is immutable.** If a source is wrong, say so on a wiki page. Never fix it in place.
-2. **Read the indexes first.** Root index → project index → the page. Only search the vault if the index fails you.
-3. **Every write ends in one log line.** One line, at the time of the write, naming the project folder it touched.
-4. **Extend, don't duplicate.** Look for the page that already covers it. Near-duplicates are the most common failure mode.
-5. **Rewrite summaries; never append to them.** An appended summary is a changelog wearing a summary's clothes.
-6. **Never silently overwrite a contradiction.** Keep both claims, attribute each, flag the conflict.
-7. **Cite `raw/` sources.** A claim traceable to a source names it.
-8. **Say when you don't know.** A documented gap is useful; an invented bridge is not.
-9. **Never rewrite history.** `log.md`, `progress/` and completed tasks are records. They are appended to, not edited.
+2. **Adding is not editing.** Any agent may land a source in `raw/` — a PDF, a document, an export. Once there, it is frozen. Record its path in the page's `sources:` and cite it.
+3. **Read the indexes first.** Root index → project index → the page. Only search the vault if the index fails you.
+4. **Every write ends in one log line.** One line, at the time of the write, naming the project folder it touched.
+5. **Extend, don't duplicate.** Look for the page that already covers it. Near-duplicates are the most common failure mode.
+6. **Rewrite summaries; never append to them.** An appended summary is a changelog wearing a summary's clothes.
+7. **Never silently overwrite a contradiction.** Keep both claims, attribute each, flag the conflict.
+8. **Cite `raw/` sources.** A claim traceable to a source names it. Cite the original document, not a text extraction of it — an extraction is derived, lossy and re-derivable, and is never itself the source.
+9. **Say when you don't know.** A documented gap is useful; an invented bridge is not.
+10. **Never rewrite history.** `log.md`, `progress/` and completed tasks are records. They are appended to, not edited.
 
 ## Operations
 
 ### ingest
 
-One source from `raw/` into the wiki.
+One source from `raw/` into the wiki. If it is not in `raw/` yet, land it there first — rule 2 — and leave it untouched afterwards.
 
 1. Read the source. If the takeaways are unclear, ask before writing.
 2. Find every existing page it touches — usually more than expected.
