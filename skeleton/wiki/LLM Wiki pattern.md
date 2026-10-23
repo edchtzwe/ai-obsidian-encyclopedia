@@ -44,6 +44,8 @@ The human curates sources, directs analysis, and asks the questions. The LLM doe
 
 The three layers, the three operations, the index-as-catalog, the append-only log, and the rule that raw is immutable.
 
+One adaptation: the catalog is split in two. `wiki/index.md` lists projects only, and each `wiki/<project>/index.md` lists that project's pages. Same idea, so the file read first stays small no matter how much is written.
+
 ## What this vault rejected
 
 - **The prescribed directory structure** — there isn't one. The gist says explicitly that structure, conventions and tooling are domain-specific and "optional and modular." Our earlier 27-folder tree was invention, not pattern.

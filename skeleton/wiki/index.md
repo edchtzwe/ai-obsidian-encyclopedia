@@ -1,33 +1,34 @@
+---
+type: index
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+tags: [index]
+---
+
 # Index
 
-Catalog of every page in this vault. An agent reads this first on any query, then opens the pages it points at. Updated on every ingest.
+Two levels. This file lists **projects** — one line each, pointing at that project's own index. Open the project index to see that project's pages.
 
-Format: one entry per page — a wikilink, an em dash, a one-line summary.
+Append-only. A line is added when a project is created; lines are not reordered, reworded or removed. The only permitted edit is repairing a pointer that no longer resolves.
 
-## Entities
+Read this first, then one project index. Nothing else.
 
-Concrete things: people, systems, projects, tools.
+## Projects
 
-Empty.
+A project is a folder of pages about one piece of work. Add a line here when the first one is created, and create `wiki/<project>/index.md` alongside it.
 
-## Concepts
+None yet.
 
-Ideas, patterns, methodologies.
+## Cross-cutting pages
 
-- [[How this vault works]] — Human-facing explanation of the layout, the operations and the rules.
+Pages that belong to no single project.
 
-## Sources
-
-Summaries of material in `raw/`.
-
+- [[How this vault works]] — Human-facing explanation of the layers, the operations and the rules.
 - [[LLM Wiki pattern]] — Karpathy's case against RAG-by-default: compile sources into a persistent wiki once, keep it current.
 
-## Working notes
+## Vault system
+
+Not knowledge. Read when orienting; update only per `AGENTS.md`.
 
 - [[tasks]] — Shared work queue for the human and all agents. Claim with `#owner/<name>`.
-
-## System files
-
-Not content — read when orienting, update only per the schema.
-
-- [[log]] — Append-only record of ingests, queries and lint passes.
+- [[log]] — Append-only audit trail of operations on the vault. One line per write.
