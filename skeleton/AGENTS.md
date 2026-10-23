@@ -22,13 +22,13 @@ The folder holding this file is the vault root.
    grep '^## \[' wiki/log.md | tail -5
    ```
 
-   Entries that left a progress file, newest last:
+   The projects in those five entries, newest first, each with its latest progress file:
 
    ```bash
-   awk '/^## \[/{h=$0; next} /^- Progress: /{print h; print}' wiki/log.md | tail -6
+   awk '/^## \[/{if(h!=""){n++;H[n]=h;P[n]=p}h=$0;p="";next} /^- Progress: /{p=$0} END{if(h!=""){n++;H[n]=h;P[n]=p} for(i=n;i>=((n>5)?n-4:1);i--){if(P[i]=="")continue; s=H[i]; k=match(s,/wiki\/[^\/]+\//)?substr(s,RSTART,RLENGTH):s; if(k in seen)continue; seen[k]=1; print H[i]; print P[i]}}' wiki/log.md
    ```
 
-   Read the last pair to continue that work. Audit-only entries carry no progress, and neither does a cross-cutting note — the entry itself is the record then.
+   Two lines per project: its most recent entry, and that session's progress file. Five entries, one line per project, so three sessions on one project cost one line. This surfaces where each thing stopped; it opens nothing. Continuing is the user's call — not the agent's.
 5. `wiki/tasks.md` — the shared queue.
 
 Follow the indexes; never crawl directories. If the session matches no project, ask before creating one. If the vault path in your memory does not resolve, ask for it — do not search the disk.
@@ -228,9 +228,9 @@ Verbs: `ingest`, `create`, `update`, `move`, `delete`, `query`, `lint`, `setup`,
 
 The description **names the project folder** it touched (`create | wiki/<project>/page`), or the page itself when it belongs to no project (`create | wiki/<page>`). That is what makes it possible to answer "where was I?" from the last few entries alone.
 
-An entry that records a session's writes **in a project** carries a `Progress:` bullet naming that session's file. Audit-only entries — `setup`, a push, a standalone `decision` — carry none, and neither does a write to a cross-cutting page that belongs to no project; there the entry itself is the record. Resume follows the newest entry that has a bullet, not the newest entry.
+An entry that records a session's writes **in a project** carries a `Progress:` bullet naming that session's file. Audit-only entries — `setup`, a push, a standalone `decision` — carry none, and neither does a write to a cross-cutting page that belongs to no project; there the entry itself is the record.
 
-So "what did I last work on" is two reads: the newest pair from the awk recipe above, then that progress file.
+"What did I last work on" is answered from the log alone: the last five entries, deduplicated by project, newest first. That is a report, not a resume. Open a progress file only when the user asks to continue that project.
 
 Three reasons the log carries no content:
 
