@@ -1,6 +1,6 @@
 ---
 name: ai-obsidian-encyclopedia
-description: Scaffold an empty Obsidian vault into an agent-maintained LLM wiki, then install a load-vault skill that tells the agent where the vault is and what was last done.
+description: Scaffold an empty Obsidian vault into an agent-maintained LLM wiki, then write the vault's path and contract into the agent's always-loaded memory so every future session starts oriented.
 ---
 
 # Set up an agent-maintained Obsidian vault
@@ -109,43 +109,29 @@ That is the only write setup makes inside an existing file, and the only content
 
 Do not invent entries, do not backfill, do not describe what you are about to do. One line about what happened.
 
-## 7. Install the `load-vault` skill
+## 7. Bake the vault into the agent's memory
 
-Setup itself created high friction: the user had to tell their agent where the vault is, what it is, and what happened last. This skill removes that permanently.
+Setup created the friction: every fresh session had to be told where the vault is, what it is, and what happened last. An installed skill only fixes that if the user remembers to invoke it. Memory does not need invoking.
 
-Write it into **your own runtime's skill mechanism** — a skills directory, a workshop proposal for the user to approve, a config entry, whatever your runtime uses. Do not invent a path, and do not assume another agent's layout. If your runtime has no skill system, put this spec in a file the user can paste into their agent's instructions yourself.
+Find the file **your runtime loads into every session** as long-term memory — `MEMORY.md`, `CLAUDE.md`, `.cursorrules`, a standing-instructions block, whatever it is. Do not invent a path, and do not assume another agent's layout. If your runtime has no such file, put the block in the agent's system prompt or persistent instructions. If there is nowhere it will actually be loaded, say so instead of writing a file that does nothing.
 
-**The spec:**
+**Append** the block. Do not rewrite the file, do not reorder what is already there, do not delete anything the user wrote.
 
 ```
-Name: load-vault
-Triggers: !load-vault, load-vault, /load-vault, "load my vault"
+## Obsidian vault
 
-Vault: <absolute path, resolved in step 1>
+Path: <absolute path, resolved in step 1>
 
-On invocation:
-1. If the vault path no longer exists, ask the user for the new path and
-   update this skill. Do not search for it.
-2. Read the last 5 entries of <vault>/wiki/log.md. Entries start with "## [",
-   so take the last 5 blocks, not the last 20 lines — entries vary in height.
-3. Report, in five lines or fewer:
-   - vault path
-   - the most recent entry: date, what was done
-   - the project folder it names, and the newest progress file in it
-   Do not open that progress file. Do not open the project index.
-   Report only.
-4. If the user asks to continue, then read, in this order:
-   newest progress/NN_*.md -> that project's index.md -> AGENTS.md.
-5. Never write to the vault while loading it.
+Before reading or writing in it, read <absolute path>/AGENTS.md — that is the contract.
 
-This skill is the user's. They may change the triggers, the number of
-entries, the report format, or delete it. It is a convenience, not
-part of the vault contract.
+"Update my vault", "what did I last work on", "add this to my vault": that vault.
+
+If the path does not resolve, ask for a new one. Never search the disk.
 ```
 
-Bake the real path in. A skill that has to ask where the vault is has not solved anything.
+That is the whole mechanism. The path means no hunting; the `AGENTS.md` line means the conventions load themselves; the trigger list means the user does not have to learn a command. `AGENTS.md` carries the read order, so nothing else needs stating here.
 
-Then tell the user it exists and how to invoke it. If your runtime requires approval (a proposal, a diff to accept), say that it is waiting for them rather than pretending it is live.
+Five lines is deliberate. This block is paid for in every session, forever.
 
 ## 8. Report and stop
 
@@ -154,8 +140,8 @@ Five lines:
 - Vault path.
 - Files created — the list above, once.
 - Projects: none yet. That is correct for a fresh vault.
-- Skill: installed, or waiting on their approval.
-- Next move: put a source in `raw/`, then invoke `load-vault` and ask for an ingest.
+- Memory: the file you appended to, and the vault path in it — or why you could not.
+- Next move: put a source in `raw/`, then say "update my vault" and ask for an ingest.
 
 ## What setup must never do
 
@@ -165,6 +151,7 @@ Five lines:
 - **Never `git init` the vault.** If it is already a repo, leave committing to the user.
 - **Never mention the temp clone.** It is a cache, not their data; it cleans itself up. Saying "you can delete this" invites a question about something that does not matter.
 - **Never copy the seed's `README.md` or `SKILL.md` into the vault.** The vault gets the schema and the wiki, not the marketing.
+- **Never rewrite the memory file.** Append the block and leave the user's existing memory alone.
 
 ## After setup
 

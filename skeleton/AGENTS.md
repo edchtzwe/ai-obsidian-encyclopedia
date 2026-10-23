@@ -9,7 +9,25 @@ tags: [schema, meta]
 
 The contract for any agent working in this vault. Based on Andrej Karpathy's [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) pattern, adapted for several agents sharing one vault across many projects.
 
-Read this, then `wiki/index.md`, before touching anything. Two reads, not a directory crawl.
+## Start here
+
+The folder holding this file is the vault root.
+
+1. `wiki/index.md` — one line per project, each pointing at that project's index.
+2. `wiki/<project>/index.md` — that project's pages. Every wiki subfolder has one.
+3. `wiki/<project>/progress/` — one file per session. The highest number is the current state; read it to continue that work.
+4. `wiki/log.md` — what happened, oldest first. Last five entries:
+
+   ```bash
+   grep '^## \[' wiki/log.md | tail -5
+   ```
+
+   The newest entry links the session's progress file. Read that file, not the folder.
+5. `wiki/tasks.md` — the shared queue.
+
+Follow the indexes; never crawl directories. If the session matches no project, ask before creating one. If the vault path in your memory does not resolve, ask for it — do not search the disk.
+
+Everything below is the rules. Nothing here is optional.
 
 ## What this vault is
 
@@ -87,20 +105,44 @@ Health check. On request, not every session. Broken `[[wikilinks]]`, malformed f
 
 ## Page format
 
-```yaml
+```markdown
 ---
 type: entity | concept | source | synthesis | note
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
-sources: ["raw/Karpathy - LLM Wiki.md"]
+sources: ["raw/Source.md"]
 tags: [topic]
 ---
+
+# Title
+
+One paragraph: what this page says, in the wiki's own words. Not a table of contents.
+
+## Key points
+
+## Connections
+
+- [[Other Page]] — how they relate
+
+## Sources
 ```
 
-`type`, `created` and `updated` are required. `sources` and `tags` are optional. Invent no other keys.
+`type`, `created` and `updated` are required. `sources` and `tags` are optional. Invent no other keys. **Bump `updated` on every edit.**
 
-Then an `# H1` matching the filename, then prose.
+A source page summarises its source; it never pastes it. The `raw/` file is the provenance, not the page.
 
+If a source contradicts a claim already in the wiki, add the section; if nothing conflicts, omit it:
+
+```markdown
+## Contradictions
+
+- <claim A> — [[Page]] — <source>
+- <claim B> — [[Page]] — <source>
+```
+
+Keep both. Attribute both. Never silently overwrite.
+
+- `# Title` matches the filename exactly. The page opens with prose, not a second heading.
 - Cross-reference with `[[Page Name]]`. Link generously — the graph view is the health check.
 - Filenames are `Title Case With Spaces.md`, matching the title.
 - No `[ ] { } | # ^` in filenames. They break wikilinks.
@@ -127,33 +169,60 @@ Neither index holds content. Both are pointers.
 
 One numbered file per work session: `progress/01_slug.md`, `02_slug.md`, …
 
-- `NN` is the highest existing number plus one. Check the directory before writing.
-- **A progress file is never edited after it is written.** It is a record of that session, not a live status board.
+- The folder is created with the project's first page. An empty vault has no project folders, and that is correct.
+- `NN` is the highest existing number plus one. Check the directory with `ls` before writing.
+- **Written once, at the end of the session. Never edited afterwards.** It is a record of that session, not a live status board.
 - The highest number **is** the current state. There is no separate status document, and nothing is rewritten to stay current — so nothing can go stale.
-- Frontmatter: `type: progress`, `date`, `agent`, `status` (`done` / `wip` / `blocked`).
+- The H1 is `NN — <slug>` and does not match the filename. Progress files are exempt from the title rule.
 
-Sections:
+Template:
 
+```markdown
+---
+type: progress
+date: YYYY-MM-DD
+agent: <name>
+status: done | wip | blocked
+---
+
+# NN — <slug>
+
+## What was done
+
+Concrete actions, past tense: what you wrote, changed, decided. Not what you plan to do.
+
+## Files touched
+
+Every path created, modified or deleted, one bullet each, with a short why. A path the next session cannot find is a path you did not record.
+
+## Decisions
+
+Choices the next session must honour, and the reason. Not a narrative of the discussion.
+
+## Blockers
+
+Hard stops, missing inputs, unanswered questions. `none` if none.
+
+## Next steps
+
+Ordered. The first step must be runnable immediately, by someone holding only this file.
 ```
-## What changed
-## State
-## Next
-```
-
-`State` is what is true now. `Next` is the ordered action for whoever picks it up.
 
 ## log.md
 
 One line per operation **on the vault** — what was written, where. Not what the work accomplished, and never the content itself.
 
-```
-## [2026-10-22] create | wiki/my-project/page-name
-- First page in the project; added to its index
+```markdown
+## [2026-10-22] update | wiki/<project>/ — <what changed>
+- <what changed, one bullet>
+- Progress: wiki/<project>/progress/03_slug.md
 ```
 
 Verbs: `ingest`, `create`, `update`, `move`, `delete`, `query`, `lint`, `setup`, `decision`.
 
-The description **names the project folder** it touched (`create | wiki/<project>/page`). That is what makes it possible to answer "where was I?" by reading the last few entries alone, without opening a single page.
+The description **names the project folder** it touched (`create | wiki/<project>/page`). That is what makes it possible to answer "where was I?" from the last few entries alone.
+
+The last entry of a session carries a `Progress:` bullet pointing at that session's file. That is what makes resume two reads — newest log entry, then the progress file it links. A session that writes anything and leaves no such link has broken the next resume.
 
 Three reasons the log carries no content:
 
