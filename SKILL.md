@@ -159,11 +159,11 @@ Five lines:
 
 ## What setup must never do
 
-- **Never edit a note.** Setup copies files and dates one line. That is all it writes.
+- **Never edit a note.** Setup copies files and appends one log line. That is all it writes.
 - **Never add frontmatter to anything.** No note exists yet to add it to.
 - **Never run on a vault with content.** No exceptions, no partial migration.
 - **Never `git init` the vault.** If it is already a repo, leave committing to the user.
-- **Never delete the clone while the user might want the repo.** Mention nothing; it is a temp directory and it will clean itself up.
+- **Never mention the temp clone.** It is a cache, not their data; it cleans itself up. Saying "you can delete this" invites a question about something that does not matter.
 - **Never copy the seed's `README.md` or `SKILL.md` into the vault.** The vault gets the schema and the wiki, not the marketing.
 
 ## After setup
