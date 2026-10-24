@@ -2,14 +2,14 @@
 
 A seed for Obsidian vaults that LLM agents maintain, based on Andrej Karpathy's [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f).
 
-Give your agent this URL. It reads `SKILL.md`, asks where your vault is, scaffolds it, and installs a `load-vault` skill so you never have to explain your own vault to it again.
+Give your agent this URL. It reads `SKILL.md`, asks where your vault is, scaffolds it, and writes the vault's path and contract into the agent's own memory so you never have to explain your vault again.
 
 **Empty vaults only.** If your vault already has notes, setup refuses. Migrating means reformatting notes an agent did not write, and no script does that safely — so this repo does not pretend to. Your options are a new empty vault, or a manual migration with your own agent.
 
 ## What you get
 
 ```
-raw/                          sources. Immutable, never edited by an agent.
+raw/                          sources. Write-once: anyone may add, none edit.
 raw/assets/                   images and attachments
 wiki/index.md                 root catalog: one line per project
 wiki/<project>/index.md       that project's pages
@@ -24,7 +24,7 @@ Three layers — `raw/`, `wiki/`, `AGENTS.md` — and no more. Deeper structure 
 
 The conventions are the point, so they are worth stating plainly:
 
-- **`raw/` is immutable.** If a source is wrong, say so in `wiki/`.
+- **`raw/` is write-once.** You or an agent may add a source; nobody edits, moves or deletes one afterwards. If a source is wrong, say so in `wiki/`. Cite the document itself, never a text extraction of it — an extraction is derived, lossy, and re-derivable, so it is not the source.
 - **Index before search.** Two levels: projects at the root, pages per project. Reading the first file costs nothing at any vault size.
 - **Extend, don't duplicate.** Near-duplicate pages are the most common failure mode of agent-maintained wikis.
 - **Contradictions are kept, not overwritten.** Both claims stay, each attributed.
@@ -32,13 +32,23 @@ The conventions are the point, so they are worth stating plainly:
 - **The log carries no content.** It is an audit trail, not a second wiki.
 - **Completion is history.** Finished tasks are dated and left in place.
 
-## The load-vault skill
+## Why it remembers
 
-The friction this solves: a fresh session has no idea where your vault is or what you were doing.
+The friction this solves: a fresh session has no idea where your vault is or what you were doing. A skill only helps if you remember to invoke it, and most people don't want to learn a command for their own notes.
 
-The skill bakes in the vault's real path, then on invocation reads the last five entries of `wiki/log.md` and reports where the vault is, what happened last, and which project it was. It does not open `progress/` — you ask, it reads. That keeps a load to a few hundred tokens instead of a directory crawl.
+So setup writes five lines into the file your agent already loads every session — `MEMORY.md`, `CLAUDE.md`, a system prompt, whatever it uses:
 
-It is generated during setup into whatever skill mechanism your runtime uses. It is then yours: change the triggers, change the report, delete it. Nothing in the vault depends on it.
+```
+## Obsidian vault
+Path: /absolute/path/to/your/vault
+Before reading or writing in it, read <path>/AGENTS.md — that is the contract.
+"Update my vault" / "what did I last work on": that vault.
+If the path does not resolve, ask. Never search the disk.
+```
+
+The path removes the hunting. The `AGENTS.md` line means the conventions load themselves. Because that file states the read order — root index, project index, newest progress file — saying "update my vault" or "what did I last work on" is enough. No command, no skill, no explanation.
+
+The cost is five lines of context in every session, which is why it is five lines and not fifty.
 
 ## Install
 
@@ -48,7 +58,7 @@ Point your agent at this file:
 Set up my vault according to https://github.com/edchtzwe/ai-obsidian-encyclopedia/SKILL.md
 ```
 
-It will ask for the vault path, check that it is an Obsidian vault and that it is empty, clone this repo to a temporary directory, copy `skeleton/` into the vault, date the setup entry in the log, and install `load-vault`.
+It will ask for the vault path, check that it is an Obsidian vault and that it is empty, clone this repo to a temporary directory, copy `skeleton/` into the vault, date the setup entry in the log, and add the vault block to your agent's memory.
 
 If your vault is not empty it stops and says so. That is the whole safety story: this repo never edits a note that already exists.
 
@@ -62,7 +72,7 @@ One script is on the roadmap and no more — a linter for broken wikilinks, malf
 
 ## Status
 
-v0.1 — seed and setup skill. The linter is not written; `AGENTS.md` describes it as planned, and nothing else depends on it.
+v0.2 — seed, setup skill, and memory bake. The linter is not written; `AGENTS.md` describes it as planned, and nothing else depends on it.
 
 ## Based on
 

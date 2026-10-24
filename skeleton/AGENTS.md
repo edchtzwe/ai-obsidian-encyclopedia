@@ -9,7 +9,31 @@ tags: [schema, meta]
 
 The contract for any agent working in this vault. Based on Andrej Karpathy's [LLM Wiki](https://gist.github.com/karpathy/442a6bf555914893e9891c11519de94f) pattern, adapted for several agents sharing one vault across many projects.
 
-Read this, then `wiki/index.md`, before touching anything. Two reads, not a directory crawl.
+## Start here
+
+The folder holding this file is the vault root.
+
+1. `wiki/index.md` — one line per project, each pointing at that project's index.
+2. `wiki/<project>/index.md` — that project's pages. Every wiki subfolder has one.
+3. `wiki/<project>/progress/` — one file per session. The highest number is the current state; read it to continue that work.
+4. `wiki/log.md` — what happened, oldest first. Last five entries:
+
+   ```bash
+   grep '^## \[' wiki/log.md | tail -5
+   ```
+
+   The projects in those five entries, newest first, each with its latest progress file:
+
+   ```bash
+   awk '/^## \[/{if(h!=""){n++;H[n]=h;P[n]=p}h=$0;p="";next} /^- Progress: /{p=$0} END{if(h!=""){n++;H[n]=h;P[n]=p} for(i=n;i>=((n>5)?n-4:1);i--){if(P[i]=="")continue; s=H[i]; k=match(s,/wiki\/[^\/]+\//)?substr(s,RSTART,RLENGTH):s; if(k in seen)continue; seen[k]=1; print H[i]; print P[i]}}' wiki/log.md
+   ```
+
+   Two lines per project: its most recent entry, and that session's progress file. Five entries, one line per project, so three sessions on one project cost one line. This surfaces where each thing stopped; it opens nothing. Continuing is the user's call — not the agent's.
+5. `wiki/tasks.md` — the shared queue.
+
+Follow the indexes; never crawl directories. If the session matches no project, ask before creating one. If the vault path in your memory does not resolve, ask for it — do not search the disk.
+
+Everything below is the rules. Nothing here is optional.
 
 ## What this vault is
 
@@ -19,7 +43,7 @@ Compiled knowledge, not chat history. A source is read once and written up as li
 
 | Layer | Owner | Rule |
 | :--- | :--- | :--- |
-| `raw/` | Human | Immutable. Read, never edit, move or delete. |
+| `raw/` | Both | Write-once. Anyone may add a source; no one edits, moves or deletes one. |
 | `wiki/` | Agents | Written by agents, read by humans. |
 | `AGENTS.md` | Both | The rules that keep the other two honest. |
 
@@ -47,20 +71,21 @@ A fresh vault has no project folders, and that is correct — `wiki/<project>/` 
 ## Hard rules
 
 1. **`raw/` is immutable.** If a source is wrong, say so on a wiki page. Never fix it in place.
-2. **Read the indexes first.** Root index → project index → the page. Only search the vault if the index fails you.
-3. **Every write ends in one log line.** One line, at the time of the write, naming the project folder it touched.
-4. **Extend, don't duplicate.** Look for the page that already covers it. Near-duplicates are the most common failure mode.
-5. **Rewrite summaries; never append to them.** An appended summary is a changelog wearing a summary's clothes.
-6. **Never silently overwrite a contradiction.** Keep both claims, attribute each, flag the conflict.
-7. **Cite `raw/` sources.** A claim traceable to a source names it.
-8. **Say when you don't know.** A documented gap is useful; an invented bridge is not.
-9. **Never rewrite history.** `log.md`, `progress/` and completed tasks are records. They are appended to, not edited.
+2. **Adding is not editing.** Any agent may land a source in `raw/` — a PDF, a document, an export. Once there, it is frozen. Record its path in the page's `sources:` and cite it.
+3. **Read the indexes first.** Root index → project index → the page. Only search the vault if the index fails you.
+4. **Every write ends in one log line.** One line, at the time of the write, naming the project folder it touched.
+5. **Extend, don't duplicate.** Look for the page that already covers it. Near-duplicates are the most common failure mode.
+6. **Rewrite summaries; never append to them.** An appended summary is a changelog wearing a summary's clothes.
+7. **Never silently overwrite a contradiction.** Keep both claims, attribute each, flag the conflict.
+8. **Cite `raw/` sources.** A claim traceable to a source names it. Cite the original document, not a text extraction of it — an extraction is derived, lossy and re-derivable, and is never itself the source.
+9. **Say when you don't know.** A documented gap is useful; an invented bridge is not.
+10. **Never rewrite history.** `log.md`, `progress/` and completed tasks are records. They are appended to, not edited.
 
 ## Operations
 
 ### ingest
 
-One source from `raw/` into the wiki.
+One source from `raw/` into the wiki. If it is not in `raw/` yet, land it there first — rule 2 — and leave it untouched afterwards.
 
 1. Read the source. If the takeaways are unclear, ask before writing.
 2. Find every existing page it touches — usually more than expected.
@@ -87,20 +112,44 @@ Health check. On request, not every session. Broken `[[wikilinks]]`, malformed f
 
 ## Page format
 
-```yaml
+```markdown
 ---
 type: entity | concept | source | synthesis | note
 created: YYYY-MM-DD
 updated: YYYY-MM-DD
-sources: ["raw/Karpathy - LLM Wiki.md"]
+sources: ["raw/Source.md"]
 tags: [topic]
 ---
+
+# Title
+
+One paragraph: what this page says, in the wiki's own words. Not a table of contents.
+
+## Key points
+
+## Connections
+
+- [[Other Page]] — how they relate
+
+## Sources
 ```
 
-`type`, `created` and `updated` are required. `sources` and `tags` are optional. Invent no other keys.
+`type`, `created` and `updated` are required. `sources` and `tags` are optional. Invent no other keys. **Bump `updated` on every edit.**
 
-Then an `# H1` matching the filename, then prose.
+A source page summarises its source; it never pastes it. The `raw/` file is the provenance, not the page.
 
+If a source contradicts a claim already in the wiki, add the section; if nothing conflicts, omit it:
+
+```markdown
+## Contradictions
+
+- <claim A> — [[Page]] — <source>
+- <claim B> — [[Page]] — <source>
+```
+
+Keep both. Attribute both. Never silently overwrite.
+
+- `# Title` matches the filename exactly. The page opens with prose, not a second heading.
 - Cross-reference with `[[Page Name]]`. Link generously — the graph view is the health check.
 - Filenames are `Title Case With Spaces.md`, matching the title.
 - No `[ ] { } | # ^` in filenames. They break wikilinks.
@@ -127,33 +176,62 @@ Neither index holds content. Both are pointers.
 
 One numbered file per work session: `progress/01_slug.md`, `02_slug.md`, …
 
-- `NN` is the highest existing number plus one. Check the directory before writing.
-- **A progress file is never edited after it is written.** It is a record of that session, not a live status board.
+- The folder is created with the project's first page. An empty vault has no project folders, and that is correct.
+- `NN` is the highest existing number plus one. Check the directory with `ls` before writing.
+- **Written once, at the end of the session. Never edited afterwards.** It is a record of that session, not a live status board.
 - The highest number **is** the current state. There is no separate status document, and nothing is rewritten to stay current — so nothing can go stale.
-- Frontmatter: `type: progress`, `date`, `agent`, `status` (`done` / `wip` / `blocked`).
+- The H1 is `NN — <slug>` and does not match the filename. Progress files are exempt from the title rule.
 
-Sections:
+Template:
 
+```markdown
+---
+type: progress
+date: YYYY-MM-DD
+agent: <name>
+status: done | wip | blocked
+---
+
+# NN — <slug>
+
+## What was done
+
+Concrete actions, past tense: what you wrote, changed, decided. Not what you plan to do.
+
+## Files touched
+
+Every path created, modified or deleted, one bullet each, with a short why. A path the next session cannot find is a path you did not record.
+
+## Decisions
+
+Choices the next session must honour, and the reason. Not a narrative of the discussion.
+
+## Blockers
+
+Hard stops, missing inputs, unanswered questions. `none` if none.
+
+## Next steps
+
+Ordered. The first step must be runnable immediately, by someone holding only this file.
 ```
-## What changed
-## State
-## Next
-```
-
-`State` is what is true now. `Next` is the ordered action for whoever picks it up.
 
 ## log.md
 
 One line per operation **on the vault** — what was written, where. Not what the work accomplished, and never the content itself.
 
-```
-## [2026-10-22] create | wiki/my-project/page-name
-- First page in the project; added to its index
+```markdown
+## [2026-10-22] update | wiki/<project>/ — <what changed>
+- <what changed, one bullet>
+- Progress: wiki/<project>/progress/03_slug.md
 ```
 
 Verbs: `ingest`, `create`, `update`, `move`, `delete`, `query`, `lint`, `setup`, `decision`.
 
-The description **names the project folder** it touched (`create | wiki/<project>/page`). That is what makes it possible to answer "where was I?" by reading the last few entries alone, without opening a single page.
+The description **names the project folder** it touched (`create | wiki/<project>/page`), or the page itself when it belongs to no project (`create | wiki/<page>`). That is what makes it possible to answer "where was I?" from the last few entries alone.
+
+An entry that records a session's writes **in a project** carries a `Progress:` bullet naming that session's file. Audit-only entries — `setup`, a push, a standalone `decision` — carry none, and neither does a write to a cross-cutting page that belongs to no project; there the entry itself is the record.
+
+"What did I last work on" is answered from the log alone: the last five entries, deduplicated by project, newest first. That is a report, not a resume. Open a progress file only when the user asks to continue that project.
 
 Three reasons the log carries no content:
 

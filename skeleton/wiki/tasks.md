@@ -41,7 +41,11 @@ Priority markers are optional and sparing: `⏫` high, `🔼` medium, `🔽` low
 
 ## Open
 
-- [ ] Example task — delete this line #owner/any ➕ YYYY-MM-DD
+Starter tasks. Delete them as you make the vault yours.
+
+- [ ] Read `AGENTS.md` and `wiki/index.md`, then create the first project folder `wiki/<project>/` #owner/any ➕ YYYY-MM-DD
+- [ ] Drop a source into `raw/` and ask your agent to ingest it #owner/any ➕ YYYY-MM-DD
+- [ ] End the session with a `progress/01_slug.md` and a log entry that links it #owner/any ➕ YYYY-MM-DD
 
 ## Done
 
