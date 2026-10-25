@@ -18,11 +18,13 @@ FM002    error    frontmatter is missing a required key
 FM003    error    frontmatter value invalid (type, status, date, list syntax)
 FM004    error    frontmatter carries a key the contract does not define
 IDX001   error    page in wiki/<project>/ not linked from that project's index
+                  (progress records are exempt: numbered, not linked)
 IDX002   error    project folder not listed in wiki/index.md
 TITLE001 error    H1 does not match the filename stem
 NAME001  error    filename contains a character that breaks wikilinks
 DUP001   error    two pages in one project share a basename
 ORPHAN001 warning  page has no inbound link and appears in no index
+                  (progress records are exempt: numbered, not linked)
 
 What is deliberately not checked
 --------------------------------
@@ -473,6 +475,10 @@ def check_indexes(pages, resolver, findings):
         for path in pages:
             if path == index or project_of(path) != project:
                 continue
+            # Progress records are numbered, not linked. They are reached by
+            # taking the highest number, so requiring a link would be busywork.
+            if "/progress/" in path:
+                continue
             if path not in listed:
                 findings.append(
                     Finding(
@@ -516,6 +522,9 @@ def check_orphans(pages, resolver, findings):
     for path in pages:
         name = path.rsplit("/", 1)[-1]
         if name in EXEMPT_NAMES or path.rsplit("/", 1)[-1] == "AGENTS.md":
+            continue
+        # Same reason: a session record is addressed by number, not by link.
+        if "/progress/" in path:
             continue
         if inbound.get(path, 0) == 0:
             findings.append(
