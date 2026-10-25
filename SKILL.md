@@ -132,12 +132,16 @@ Before reading or writing in it, read <absolute path>/AGENTS.md — that is the 
 
 "Update my vault", "what did I last work on", "add this to my vault": that vault.
 
+Deleting anything there is permanent — a project's `progress/` goes with it. Ask, warn, get explicit permission, then follow the removal steps in AGENTS.md.
+
 If the path does not resolve, ask for a new one. Never search the disk.
 ```
 
 That is the whole mechanism. The path means no hunting; the `AGENTS.md` line means the conventions load themselves; the trigger list means the user does not have to learn a command. `AGENTS.md` carries the read order, so nothing else needs stating here.
 
-Five lines is deliberate. This block is paid for in every session, forever.
+Six lines is deliberate. This block is paid for in every session, forever — which is why it
+carries the two things an agent cannot derive on its own: where the vault is, and that deleting
+from it needs a warning first. Everything else is in `AGENTS.md`, read on use.
 
 ## 8. Report and stop
 

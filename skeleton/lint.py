@@ -342,6 +342,11 @@ def check_frontmatter(path, lines, findings):
                     )
                 for quoted, single in items:
                     source = quoted or single
+                    # A URL is a legitimate provenance record: the source exists,
+                    # it just is not a file in raw/. Forcing a local path would
+                    # make an agent invent one.
+                    if source.startswith(("http://", "https://")):
+                        continue
                     if not os.path.exists(os.path.join(BASE_DIR, source)):
                         findings.append(
                             Finding(path, lineno, "FM003", "error", "sources path does not exist: %s" % source)
