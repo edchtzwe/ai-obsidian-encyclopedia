@@ -61,6 +61,7 @@ wiki/<project>/index.md       that project's catalog
 wiki/<project>/progress/      numbered session records, newest = current state
 wiki/<project>/*.md           the project's pages
 wiki/*.md                     cross-cutting pages that belong to no project
+lint.py                       the health check — the one script
 AGENTS.md                     this file
 ```
 
@@ -275,6 +276,10 @@ Several agents share this vault. No locks, no coordinator.
 ## Tooling
 
 Exactly one script: **a linter**, no LLM in the loop. Broken wikilinks, malformed frontmatter, orphan pages, pages missing from their project index, duplicate slugs.
+
+Implemented in this package: `lint.py` at the vault root. Stdlib Python 3, no dependencies,
+no config, no `--fix`. `python3 lint.py` prints `path:line: CODE: message`, exits 0 when clean
+and 1 on findings. It reports; repairing is a separate decision — the agent and the user.
 
 Nothing else. No index generator — indexes are pointers and small enough to maintain by hand, and a generator implies the index holds content it doesn't. No read/write/query layer — every agent already has file tools.
 
