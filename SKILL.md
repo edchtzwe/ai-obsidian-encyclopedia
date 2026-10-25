@@ -85,6 +85,7 @@ That is the whole installation. What arrives:
 
 ```
 AGENTS.md                  the schema
+lint.py                    the health check — one script, stdlib only
 raw/assets/                empty, ready for sources
 wiki/index.md              root catalog, no projects yet
 wiki/log.md                audit trail, empty until step 6
@@ -92,6 +93,11 @@ wiki/tasks.md              the shared queue
 wiki/How this vault works.md
 wiki/LLM Wiki pattern.md
 ```
+
+`lint.py` is the one script the vault permits. Copy it, verify it is there, and **do not run it**. It
+is the user's tool, not a setup step: they run it themselves, or ask you to, when they think the
+vault might be broken. Tell them it exists and how to call it — `python3 lint.py` from the vault
+root — and leave it at that.
 
 No `README.md`, no `SKILL.md`, no `.git` — those belong to the seed repo, not to their vault.
 
@@ -152,6 +158,9 @@ Five lines:
 - **Never mention the temp clone.** It is a cache, not their data; it cleans itself up. Saying "you can delete this" invites a question about something that does not matter.
 - **Never copy the seed's `README.md` or `SKILL.md` into the vault.** The vault gets the schema and the wiki, not the marketing.
 - **Never rewrite the memory file.** Append the block and leave the user's existing memory alone.
+- **Never run the linter during setup.** A vault you just copied will not lint clean until its
+  placeholder dates are filled in. Running it now reports failures the user did not cause and
+  cannot act on yet.
 
 ## After setup
 
