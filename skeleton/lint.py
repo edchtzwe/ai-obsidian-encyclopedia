@@ -484,7 +484,7 @@ def check_duplicates(pages, findings):
     seen = {}
     for path in pages:
         project = project_of(path)
-        if project is None or "/progress/" in path:
+        if project is None:
             continue
         key = (project, path.rsplit("/", 1)[-1])
         if key in seen:
